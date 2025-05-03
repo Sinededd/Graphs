@@ -1,14 +1,28 @@
 #include "mathexpression.h"
-#include "mathformconverter.h"
 #include "mathparser.h"
 
 MathExpression::MathExpression(QString exp) {
     inital = exp;
     postfixTok = MathFormConverter::InfixToPostfix(MathParser::CreateTokenList(exp));
+    qInfo() << MathChecker::GetLastError();
+    if(MathChecker::GetLastError() != MathChecker::None)
+    {
+        isValidExp = 0;
+        errorType = MathChecker::GetLastError();
+    }
+    else
+    {
+        isValidExp = 1;
+        errorType = MathChecker::None;
+    }
 }
 
-qreal MathExpression::Calculate(qreal x)
+qreal MathExpression::Calculate(const qreal &x, const qreal &y)
 {
+    if(isImplicit() && y == INFINITY)
+    {
+        throw std::invalid_argument("not enough parameters for calculation implicit function");
+    }
     QStack<qreal> operandStack;
     for(int i = 0; i < postfixTok.size(); i++)
     {
@@ -27,7 +41,10 @@ qreal MathExpression::Calculate(qreal x)
             }
             else if(postfixTok[i][0].isLetter())
             {
-                operandStack.push(x);
+                if(postfixTok[i][0] == 'x')
+                    operandStack.push(x);
+                else if(postfixTok[i][0] == 'y')
+                    operandStack.push(y);
             }
             else
             {
@@ -47,6 +64,9 @@ qreal MathExpression::Calculate(qreal x)
                     buf = operandStack.pop();
                     operandStack.push(operandStack.pop() / buf);
                     break;
+                case '~':
+                    operandStack.push(-operandStack.pop());
+                    break;
                 default:
                     break;
                 }
@@ -54,4 +74,9 @@ qreal MathExpression::Calculate(qreal x)
         }
     }
     return operandStack.top();
+}
+
+bool MathExpression::isImplicit()
+{
+    return postfixTok.contains("y");
 }

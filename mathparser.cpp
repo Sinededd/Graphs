@@ -1,4 +1,5 @@
 #include "mathparser.h"
+#include "mathchecker.h"
 
 
 QStringList MathParser::CreateTokenList(QString exp)
@@ -17,7 +18,11 @@ QStringList MathParser::CreateTokenList(QString exp)
             tokenStr += token;
         }
     }
+
     if(tokenStr != cleaned)
-        return QStringList();
+    {
+        MathChecker::ThrowError(MathChecker::Invalid_Syntax);
+    }
+    qInfo() << tokens;
     return tokens;
 }

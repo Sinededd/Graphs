@@ -16,6 +16,11 @@ PaintingScene::PaintingScene(QRect rect, QObject *parent)
 MathExpression *PaintingScene::AddExpression(QString exp)
 {
     MathExpression *mathExp = new MathExpression(exp);
+    if(!mathExp->isValid())
+    {
+        delete mathExp;
+        return nullptr;
+    }
     expressionList.push_back(mathExp);
     QRandomGenerator generator(QTime::currentTime().msec());
     new ExpressionItem(mathExp, gridItem, QColor(generator.bounded(180), generator.bounded(180), generator.bounded(180)));

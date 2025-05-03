@@ -13,6 +13,7 @@ SOURCES += \
     griditem.cpp \
     main.cpp \
     mainwindow.cpp \
+    mathchecker.cpp \
     mathexpression.cpp \
     mathformconverter.cpp \
     mathparser.cpp \
@@ -23,6 +24,7 @@ HEADERS += \
     expressionitem.h \
     griditem.h \
     mainwindow.h \
+    mathchecker.h \
     mathexpression.h \
     mathformconverter.h \
     mathparser.h \
@@ -35,4 +37,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    Geoo/Geoo.qss
+    Geoo/Geoo.qss \
+    README.md

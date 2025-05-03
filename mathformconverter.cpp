@@ -10,7 +10,15 @@ QStringList MathFormConverter::InfixToPostfix(QStringList tokens)
     {
         if(tokens[i].size() > 1)
         {
-            if(tokens[i][0].isDigit())
+            if(tokens[i] == "sin")
+            {
+                while(!operators.isEmpty() && precedence[tokens[i]] <= precedence[operators.top()])
+                {
+                    out << operators.pop();
+                }
+                operators.push(tokens[i]);
+            }
+            else if(tokens[i][0].isDigit())
             {
                 out << tokens[i];
             }
@@ -35,6 +43,13 @@ QStringList MathFormConverter::InfixToPostfix(QStringList tokens)
             }
             else
             {
+                if(tokens[i] == "-")
+                {
+                    if(i == 0 || tokens[i-1] == "(")
+                    {
+                        tokens[i] = "~";
+                    }
+                }
                 while(!operators.isEmpty() && precedence[tokens[i]] <= precedence[operators.top()])
                 {
                     out << operators.pop();
@@ -47,6 +62,7 @@ QStringList MathFormConverter::InfixToPostfix(QStringList tokens)
     {
         out << operators.pop();
     }
+    qInfo() << out;
     return out;
 }
 
