@@ -3,6 +3,7 @@
 #include "expressionitem.h"
 #include <QRandomGenerator>
 #include <QTime>
+#include <QGraphicsView>
 // #include <QRectF>
 
 PaintingScene::PaintingScene(QRect rect, QObject *parent)
@@ -11,6 +12,8 @@ PaintingScene::PaintingScene(QRect rect, QObject *parent)
     this->setSceneRect(QRect(-rect.width() / 2, -rect.height() / 2, rect.width(), rect.height()));
     gridItem = new GridItem(this->sceneRect().size(), 30);
     this->addItem(gridItem);
+    groupExpressions = this->createItemGroup(this->selectedItems());
+    groupExpressions->setFlag(QGraphicsItem::ItemIsMovable);
 }
 
 MathExpression *PaintingScene::AddExpression(QString exp)
@@ -23,7 +26,9 @@ MathExpression *PaintingScene::AddExpression(QString exp)
     }
     expressionList.push_back(mathExp);
     QRandomGenerator generator(QTime::currentTime().msec());
-    new ExpressionItem(mathExp, gridItem, QColor(generator.bounded(180), generator.bounded(180), generator.bounded(180)));
+    ExpressionItem *newExp = new ExpressionItem(mathExp, gridItem, QColor(generator.bounded(180), generator.bounded(180), generator.bounded(180)));
+    groupExpressions->addToGroup(newExp);
+    expressionItems.push_back(newExp);
     return mathExp;
 }
 
@@ -40,22 +45,29 @@ void PaintingScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
     QGraphicsScene::mousePressEvent(mouseEvent);
 }
 
+//////////////////////////////////
+/// Нужно соединить renderK из PaingScene с ExpressionItem;
+int renderK = 3;
+QPointF poi = QPointF(0, 0);
 void PaintingScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
-    gridItem->setPos(lastPos + mouseEvent->scenePos() - mouseEvent->buttonDownScenePos(Qt::LeftButton));
     QGraphicsScene::mouseMoveEvent(mouseEvent);
-}
+    gridItem->setPos(lastPos + mouseEvent->scenePos() - mouseEvent->buttonDownScenePos(Qt::LeftButton));
+    if(qAbs(groupExpressions->pos().x()) > gridItem->Size().width() / 2 * renderK || qAbs(groupExpressions->pos().y()) > gridItem->Size().height() / 4 * renderK)
+    {
+        if(qAbs(groupExpressions->pos().x() - poi.x()) > gridItem->Size().width() / 2 * renderK || qAbs(groupExpressions->pos().y() + poi.y()) > gridItem->Size().height() / 4 * renderK)
+        {
+            poi = QPointF(0, 0);
+            gridItem->setCurrentDraw(false);
+        }
 
-void PaintingScene::drawGrid()
-{
-    // scene->addLine(-scene->sceneRect().width() / 2, 0, 0, 0, QPen(Qt::black, 2));
-    // scene->addLine(0, -200, 0, 200, QPen(Qt::black, 2));
+        // qInfo() << groupExpressions->pos() - poi;
+        if(poi == QPointF(0, 0))
+        {
+            poi = groupExpressions->pos();
 
-    // // Добавляем стрелки на концах осей
-    // // Стрелка для оси X (справа)
-    // scene->addLine(200, 0, 190, 10, QPen(Qt::black, 2));
-    // scene->addLine(200, 0, 190, -10, QPen(Qt::black, 2));
-    // // Стрелка для оси Y (сверху)
-    // scene->addLine(0, -200, 10, -190, QPen(Qt::black, 2));
-    // scene->addLine(0, -200, -10, -190, QPen(Qt::black, 2));
+        }
+        groupExpressions->setPos(groupExpressions->pos() - poi);
+        update();
+    }
 }

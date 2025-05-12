@@ -10,7 +10,7 @@ QStringList MathFormConverter::InfixToPostfix(QStringList tokens)
     {
         if(tokens[i].size() > 1)
         {
-            if(tokens[i] == "sin")
+            if(tokens[i] == "sin" || tokens[i] == "cos" || tokens[i] == "tg" || tokens[i] == "ctg")
             {
                 while(!operators.isEmpty() && precedence[tokens[i]] <= precedence[operators.top()])
                 {

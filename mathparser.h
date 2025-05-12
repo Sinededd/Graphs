@@ -11,7 +11,7 @@ public:
 
 private:
     MathParser() {}
-    static inline QRegularExpression re = QRegularExpression("(\\d+\\.?\\d*|[-+*\\/()]|\\s|sin|\\w)");
+    static inline QRegularExpression re = QRegularExpression("(\\d+\\.?\\d*|[-+*\\/()^]|sin|cos|tg|ctg|\\w)");
 };
 
 #endif // MATHPARSER_H

@@ -1,7 +1,7 @@
 #ifndef MATHEXPRESSION_H
 #define MATHEXPRESSION_H
 
-#include "mathformconverter.h"
+#include "mathchecker.h"
 #include <mathparser.h>
 #include <QStringList>
 

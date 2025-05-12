@@ -1,6 +1,7 @@
 #ifndef PAINTINGSCENE_H
 #define PAINTINGSCENE_H
 
+#include "expressionitem.h"
 #include "griditem.h"
 #include "mathexpression.h"
 
@@ -8,6 +9,7 @@
 #include <QGraphicsScene>
 #include <QRectF>
 #include <QGraphicsSceneMouseEvent>
+#include <QGraphicsItemGroup>
 
 
 class PaintingScene : public QGraphicsScene
@@ -27,6 +29,8 @@ protected:
 private:
     GridItem *gridItem = nullptr;
     QList<MathExpression *> expressionList;
+    QList<ExpressionItem *> expressionItems;
+    QGraphicsItemGroup *groupExpressions;
 
     QPointF lastPos;
 

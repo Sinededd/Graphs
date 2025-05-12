@@ -1,5 +1,5 @@
 #include "mathexpression.h"
-#include "mathparser.h"
+#include "mathformconverter.h"
 
 MathExpression::MathExpression(QString exp) {
     inital = exp;
@@ -28,7 +28,23 @@ qreal MathExpression::Calculate(const qreal &x, const qreal &y)
     {
         if(postfixTok[i].size() > 1)
         {
-            if(postfixTok[i][0].isDigit())
+            if(postfixTok[i] == "sin")
+            {
+                operandStack.push(qSin(operandStack.pop()));
+            }
+            else if(postfixTok[i] == "cos")
+            {
+                operandStack.push(qCos(operandStack.pop()));
+            }
+            else if(postfixTok[i] == "tg")
+            {
+                operandStack.push(qTan(operandStack.pop()));
+            }
+            else if(postfixTok[i] == "ctg")
+            {
+                operandStack.push(1 / qTan(operandStack.pop()));
+            }
+            else if(postfixTok[i][0].isDigit())
             {
                 operandStack.push(postfixTok[i].toDouble());
             }
@@ -63,6 +79,10 @@ qreal MathExpression::Calculate(const qreal &x, const qreal &y)
                 case '/':
                     buf = operandStack.pop();
                     operandStack.push(operandStack.pop() / buf);
+                    break;
+                case '^':
+                    buf = operandStack.pop();
+                    operandStack.push(qPow(operandStack.pop(), buf));
                     break;
                 case '~':
                     operandStack.push(-operandStack.pop());

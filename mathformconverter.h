@@ -14,7 +14,7 @@ public:
 private:
     MathFormConverter() {}
     static inline QHash<QString, int> precedence
-        = QHash<QString, int>{{"(", -1}, {")", -1}, {"+", 0}, {"-", 0}, {"*", 1}, {"/", 1}, {"sin", 2}, {"~", 3}, {"cos", 4}};
+        = QHash<QString, int>{{"(", -1}, {")", -1}, {"+", 0}, {"-", 0}, {"*", 1}, {"/", 1}, {"^", 2}, {"sin", 3}, {"cos", 3}, {"tg", 3}, {"cth", 3}, {"~", 4}};
 
     static MathChecker checker;
 };

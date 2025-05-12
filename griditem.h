@@ -14,6 +14,9 @@ public:
     void setGridSize(int gridS);    
     void addGridSize(int dgridS);
     int GridSize() { return gridSize; }
+    bool isCurrentDraw() { return isCurrentDraw_; }
+    void setCurrentDraw(bool is = true) { isCurrentDraw_ = is; }
+
 
     void setSize(QSizeF size);
     QSizeF Size() {return size; }
@@ -23,6 +26,7 @@ private:
     QSizeF size;
     QPointF pos = QPointF(0, 0);
     int gridSize;
+    bool isCurrentDraw_ = 0;
 };
 
 #endif // GRIDITEM_H
