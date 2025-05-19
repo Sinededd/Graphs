@@ -1,20 +1,22 @@
 #ifndef EXPRESSIONITEM_H
 #define EXPRESSIONITEM_H
 
-#include "mathexpression.h"
+#include "Math/mathexpression.h"
 #include "griditem.h"
+#include "sceneitem.h"
 #include <QGraphicsItem>
 #include <QPainter>
 #include <QColor>
 #include <QWidget>
 #include <QGraphicsScene>
 
-class ExpressionItem : public QGraphicsItem
+class ExpressionItem : public SceneItem
 {
 public:
     ExpressionItem(MathExpression *exp, GridItem *parent, QColor color = QColor("red"));
-    QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *widget) override;
+
+protected:
+    void draw(QPainterPath *path) override;
 
 private:
     MathExpression *exp;

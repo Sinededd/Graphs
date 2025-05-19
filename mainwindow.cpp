@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     // setMinimumSize(700, 480);
     setMinimumSize(250, 250);
-    paintArea = new PaintingArea(this->geometry(), this);
+    paintArea = new PaintingArea(QRect(0, 0, this->minimumWidth(), this->minimumHeight()), this);
     setCentralWidget(paintArea);
 
     QAction *addExpAction = new QAction("Добавить");

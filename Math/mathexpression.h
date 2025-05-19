@@ -2,7 +2,7 @@
 #define MATHEXPRESSION_H
 
 #include "mathchecker.h"
-#include <mathparser.h>
+#include "Math/mathparser.h"
 #include <QStringList>
 
 class MathExpression

@@ -1,52 +1,57 @@
 #include "griditem.h"
+#include "qgraphicsitem.h"
+#include <QTime>
+#include <QGraphicsScene>
 
 
-GridItem::GridItem(QSizeF size, int gridSize, QGraphicsItem *parent) :
-    QGraphicsItem{parent}, size(size), gridSize(gridSize)
+GridItem::GridItem(int gridSize, QGraphicsItem *parent) :
+    QGraphicsItem{parent}, gridSize(gridSize)
 {}
+
 
 QRectF GridItem::boundingRect() const
 {
-    return QRectF(-size.width() / 2, -size.height() / 2, size.width(), size.height());
+    return QRectF(50, 50, scene()->sceneRect().width() - 100, scene()->sceneRect().height() - 100);
 }
 
 void GridItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    painter->setRenderHint(QPainter::Antialiasing);
-    // Рисуем сетку
-    QPen gridPen(QColor(200, 200, 200), 1, Qt::DashLine);
-    QPen defPen(Qt::black, 2);
-    for (int y = gridSize + pos.y(); y <= size.height() / 2; y += gridSize) { // сетка горизонт -
-        painter->setPen(gridPen);
-        painter->drawLine(-size.width() / 2, y, size.width() / 2, y);
-        painter->setPen(defPen);
-        painter->drawText(5 + pos.x(), y + 5, "-" + QString::number((y - pos.y()) / gridSize));
+    painter->drawRect(boundingRect());
+    // painter->setRenderHint(QPainter::Antialiasing);
+    // // Рисуем сетку
+    // QPen gridPen(QColor(200, 200, 200), 1, Qt::DashLine);
+    // QPen defPen(Qt::black, 2);
+    // for (int y = gridSize + pos.y(); y <= size.height() / 2; y += gridSize) { // сетка горизонт -
+    //     painter->setPen(gridPen);
+    //     painter->drawLine(-size.width() / 2, y, size.width() / 2, y);
+    //     painter->setPen(defPen);
+    //     painter->drawText(5 + pos.x(), y + 5, "-" + QString::number((y - pos.y()) / gridSize));
 
-    }
-    for (int y = -gridSize + pos.y(); y >= -size.height() / 2; y -= gridSize) { // сетка горизонт +
-        painter->setPen(gridPen);
-        painter->drawLine(-size.width() / 2, y, size.width() / 2, y);
-        painter->setPen(defPen);
-        painter->drawText(5 + pos.x(), y + 5, QString::number((y - pos.y()) / gridSize));
-    }
-    for (int x = gridSize + pos.x(); x <= size.width() / 2; x += gridSize) {
-        painter->setPen(gridPen);
-        painter->drawLine(x, -size.height() / 2, x, size.height() / 2);
-        painter->setPen(defPen);
-        painter->drawText(x - 5, -3 + pos.y(), QString::number((x - pos.x()) / gridSize));
+    // }
+    // for (int y = -gridSize + pos.y(); y >= -size.height() / 2; y -= gridSize) { // сетка горизонт +
+    //     painter->setPen(gridPen);
+    //     painter->drawLine(-size.width() / 2, y, size.width() / 2, y);
+    //     painter->setPen(defPen);
+    //     painter->drawText(5 + pos.x(), y + 5, QString::number((y - pos.y()) / gridSize));
+    // }
+    // for (int x = gridSize + pos.x(); x <= size.width() / 2; x += gridSize) {
+    //     painter->setPen(gridPen);
+    //     painter->drawLine(x, -size.height() / 2, x, size.height() / 2);
+    //     painter->setPen(defPen);
+    //     painter->drawText(x - 5, -3 + pos.y(), QString::number((x - pos.x()) / gridSize));
 
-    }
-    for (int x = -gridSize + pos.x(); x >= -size.width() / 2; x -= gridSize) {
-        painter->setPen(gridPen);
-        painter->drawLine(x, -size.height() / 2, x, size.height() / 2);
-        painter->setPen(defPen);
-        painter->drawText(x - 5, -3 + pos.y(), "-" + QString::number((x - pos.x()) / gridSize));
-    }
-    // Рисуем оси
-    QPen axisPen(Qt::black, 2);
-    painter->setPen(axisPen);
-    painter->drawLine(-size.width() / 2, pos.y(), size.width() / 2, pos.y()); // оcь x
-    painter->drawLine(pos.x(), -size.height() / 2, pos.x(), size.height() / 2); // ось y
+    // }
+    // for (int x = -gridSize + pos.x(); x >= -size.width() / 2; x -= gridSize) {
+    //     painter->setPen(gridPen);
+    //     painter->drawLine(x, -size.height() / 2, x, size.height() / 2);
+    //     painter->setPen(defPen);
+    //     painter->drawText(x - 5, -3 + pos.y(), "-" + QString::number((x - pos.x()) / gridSize));
+    // }
+    // // Рисуем оси
+    // QPen axisPen(Qt::black, 2);
+    // painter->setPen(axisPen);
+    // painter->drawLine(-size.width() / 2, pos.y(), size.width() / 2, pos.y()); // оcь x
+    // painter->drawLine(pos.x(), -size.height() / 2, pos.x(), size.height() / 2); // ось y
 }
 
 void GridItem::setGridSize(int gridS)

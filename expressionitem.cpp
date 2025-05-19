@@ -2,7 +2,7 @@
 
 ExpressionItem::ExpressionItem(MathExpression *exp, GridItem *parent,
                                QColor color)
-    : QGraphicsItem{parent}, exp(exp) {
+    : SceneItem{parent}, exp(exp) {
     grid = parent;
     this->color = color;
     paintPath = new QPainterPath();
@@ -10,96 +10,76 @@ ExpressionItem::ExpressionItem(MathExpression *exp, GridItem *parent,
     setFlag(ItemIsMovable, true);
 }
 
-QRectF ExpressionItem::boundingRect() const {
-    return QRectF(-grid->Size().width() * renderK / 2, -grid->Size().height() * renderK / 2,
-                  grid->Size().width() * renderK, grid->Size().height() * renderK);
-}
+void ExpressionItem::draw(QPainterPath *path)
+{
+    qInfo() << "podzalupa";
+    // if(exp->isImplicit())
+    // {
+    //     implicitFunction(path);
+    // }
+    // else
+    // {
+    //     explicitFunction(path);
 
-void ExpressionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
-                           QWidget *) {
-    painter->setRenderHint(QPainter::Antialiasing);
-    QPen graphPen(color, 2);
-    painter->setPen(graphPen);
-    // painter->drawRect(boundingRect());
-    if(grid->isCurrentDraw() == 0)
-    {
-        // qInfo() << this->pos();
-        // paintPath->addRect(boundingRect());
-        paintPath->clear();
-        if(exp->isImplicit())
-        {
-            // qInfo() << "implicit hui";
-            implicitFunction(paintPath);
-        }
-        else
-        {
-            // qInfo() << "explicit hui";
-            explicitFunction(paintPath);
+    // }
+    // grid->setCurrentDraw();
+    qreal step = 0.1; // Шаг в радианах для плавности
+    QRectF rect = offsetRect();
+    qreal gridSize = grid->GridSize();
+    qreal xMin = rect.left();
+    qreal xMax = rect.right();
+    // Начальная точка
+    qreal x = rect.left();
+    qreal y = std::tan(x);
+    QPointF previousPoint(x * gridSize, -y * gridSize); // Отрицательный y, т.к. ось Y в графике направлена вниз
+    path->moveTo(previousPoint);
 
+    // Итерация по x
+    for (qreal i = xMin + step; i <= xMax; i += step) {
+        x = i;
+        // Проверяем, близко ли мы к асимптоте
+        qreal modX = std::fmod(x, M_PI);
+        if (std::abs(modX - M_PI / 2) < 0.05 || std::abs(modX + M_PI / 2) < 0.05) {
+            // Пропускаем точки около асимптот
+            path->moveTo(QPointF(x * gridSize, -y * gridSize));
+            continue;
         }
-        grid->setCurrentDraw();
-        QPainterPath curPath(paintPath->toReversed());
-        painter->drawPath(curPath);
-        return;
+
+        y = std::tan(x);
+        // Ограничиваем y, чтобы избежать экстремальных значений
+        if (std::abs(y) > 100) {
+            path->moveTo(QPointF(x * gridSize, -y * gridSize));
+            continue;
+        }
+
+        QPointF newPoint(x * gridSize, -y * gridSize);
+        path->lineTo(newPoint);
+        previousPoint = newPoint;
     }
-    QPainterPath curPath(paintPath->toReversed());
-
-    painter->drawPath(curPath);
 }
 
 void ExpressionItem::explicitFunction(QPainterPath *path) {
-    if(grid->isCurrentDraw() == 0)
-    {
-        qInfo() << "penis";
-        int i = -grid->Pos().x() - grid->Size().width() * renderK / 2;
-        QPointF previousPoint = QPointF(
-            i + grid->Pos().x(),
-            -exp->Calculate((qreal)i / (qreal)grid->GridSize()) * grid->GridSize() +
-                grid->Pos().y());
-        path->moveTo(previousPoint);
-        for (i = i + 1; i < grid->Size().width() * renderK; i++) {
-            QPointF newPoint = QPointF(
-                i + grid->Pos().x(),
-                -exp->Calculate((qreal)i / (qreal)grid->GridSize()) * grid->GridSize() +
-                    grid->Pos().y());
-            if(qAbs(previousPoint.y() - newPoint.y()) > 1000)
-            {
-                path->moveTo(newPoint);
-                // painter->drawLine(previousPoint, newPoint);
-            }
-            else
-            {
-                path->lineTo(newPoint);
-            }
-
-            previousPoint = newPoint;
-        }
-    }
-    else
-    {
-        int i = - grid->Size().width() / 2;
-        QPointF previousPoint = QPointF(
+    QRectF rect = offsetRect();
+    int i = rect.left();
+    QPointF previousPoint = QPointF(
+        i,
+        exp->Calculate((qreal)i / (qreal)grid->GridSize()) * grid->GridSize());
+    path->moveTo(previousPoint);
+    for (i = i + 1; i < rect.right(); i++) {
+        QPointF newPoint = QPointF(
             i,
-            -exp->Calculate((qreal)i / (qreal)grid->GridSize()) * grid->GridSize());
-        path->moveTo(previousPoint);
-        for (i = i + 1; i < grid->Size().width() * renderK; i++) {
-            QPointF newPoint = QPointF(
-                i,
-                -exp->Calculate((qreal)i / (qreal)grid->GridSize()) * grid->GridSize());
-            if(qAbs(previousPoint.y() - newPoint.y()) > 1000)
-            {
-                path->moveTo(newPoint);
-                // painter->drawLine(previousPoint, newPoint);
-            }
-            else
-            {
-                path->lineTo(newPoint);
-            }
-
-            previousPoint = newPoint;
+            exp->Calculate((qreal)i / (qreal)grid->GridSize()) * grid->GridSize());
+        if(qAbs(previousPoint.y() - newPoint.y()) > rect.height())
+        {
+            path->moveTo(newPoint);
         }
-    }
+        else
+        {
+            path->lineTo(newPoint);
+        }
 
+        previousPoint = newPoint;
+    }
 }
 
 void ExpressionItem::implicitFunction(QPainterPath *path) {

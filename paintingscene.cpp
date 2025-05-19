@@ -1,73 +1,77 @@
 #include "paintingscene.h"
-#include "griditem.h"
+#include "sceneitem.h"
 #include "expressionitem.h"
+#include "Math/mathexpression.h"
 #include <QRandomGenerator>
 #include <QTime>
 #include <QGraphicsView>
 // #include <QRectF>
 
-PaintingScene::PaintingScene(QRect rect, QObject *parent)
-    : QGraphicsScene{parent}
+PaintingScene::PaintingScene(QObject *parent)
+    : QGraphicsScene(parent)
 {
-    this->setSceneRect(QRect(-rect.width() / 2, -rect.height() / 2, rect.width(), rect.height()));
-    gridItem = new GridItem(this->sceneRect().size(), 30);
-    this->addItem(gridItem);
-    groupExpressions = this->createItemGroup(this->selectedItems());
-    groupExpressions->setFlag(QGraphicsItem::ItemIsMovable);
+    // SceneItem *item = new SceneItem();
+    // item->updateDraw();
+    group_ = this->createItemGroup(this->selectedItems());
+    gridItem = new GridItem(10);
+    addItem(gridItem);
+    // group_->setFlag(QGraphicsItem::ItemIsMovable);
 }
 
 MathExpression *PaintingScene::AddExpression(QString exp)
 {
+    // addItemInCenter(new SceneItem());
+
     MathExpression *mathExp = new MathExpression(exp);
     if(!mathExp->isValid())
     {
         delete mathExp;
         return nullptr;
     }
-    expressionList.push_back(mathExp);
+    // expressionList.push_back(mathExp);
     QRandomGenerator generator(QTime::currentTime().msec());
     ExpressionItem *newExp = new ExpressionItem(mathExp, gridItem, QColor(generator.bounded(180), generator.bounded(180), generator.bounded(180)));
-    groupExpressions->addToGroup(newExp);
-    expressionItems.push_back(newExp);
+    addItemInCenter(newExp);
+    // groupExpressions->addToGroup(newExp);
+    // expressionItems.push_back(newExp);
+    // return mathExp;
     return mathExp;
 }
 
 MathExpression *PaintingScene::AddExpression(MathExpression *exp)
 {
-    expressionList.push_back(exp);
-    new ExpressionItem(exp, gridItem);
-    return exp;
+    // expressionList.push_back(exp);
+    // new ExpressionItem(exp, gridItem);
+    // return exp;
+    return new MathExpression("x");
 }
 
-void PaintingScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
+SceneItem* PaintingScene::addItemInCenter(SceneItem *item)
 {
-    lastPos = gridItem->Pos();
-    QGraphicsScene::mousePressEvent(mouseEvent);
+    group_->setPos(0, 0);
+    QList<QGraphicsItem*> items = group_->childItems();
+    for(QGraphicsItem* item : std::as_const(items))
+    {
+        dynamic_cast<SceneItem*>(item)->updateDraw();
+    }
+    dynamic_cast<SceneItem*>(item)->updateDraw();
+    // this->addItem(item);
+    group_->addToGroup(item);
+    return item;
 }
 
-//////////////////////////////////
-/// Нужно соединить renderK из PaingScene с ExpressionItem;
-int renderK = 3;
-QPointF poi = QPointF(0, 0);
 void PaintingScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
-    QGraphicsScene::mouseMoveEvent(mouseEvent);
-    gridItem->setPos(lastPos + mouseEvent->scenePos() - mouseEvent->buttonDownScenePos(Qt::LeftButton));
-    if(qAbs(groupExpressions->pos().x()) > gridItem->Size().width() / 2 * renderK || qAbs(groupExpressions->pos().y()) > gridItem->Size().height() / 4 * renderK)
+    group_->moveBy(mouseEvent->scenePos().x() - mouseEvent->lastScenePos().x(), mouseEvent->scenePos().y() - mouseEvent->lastScenePos().y());
+    if(qAbs(group_->pos().x()) > sceneRect().width() * offsetSize_ || qAbs(group_->pos().y()) > sceneRect().height() * offsetSize_)
     {
-        if(qAbs(groupExpressions->pos().x() - poi.x()) > gridItem->Size().width() / 2 * renderK || qAbs(groupExpressions->pos().y() + poi.y()) > gridItem->Size().height() / 4 * renderK)
+        // qInfo() << group_->pos();
+        group_->setPos(0, 0);
+        QList<QGraphicsItem*> items = group_->childItems();
+        for(QGraphicsItem* item : std::as_const(items))
         {
-            poi = QPointF(0, 0);
-            gridItem->setCurrentDraw(false);
+            dynamic_cast<SceneItem*>(item)->updateDraw();
         }
-
-        // qInfo() << groupExpressions->pos() - poi;
-        if(poi == QPointF(0, 0))
-        {
-            poi = groupExpressions->pos();
-
-        }
-        groupExpressions->setPos(groupExpressions->pos() - poi);
-        update();
     }
+    QGraphicsScene::mouseMoveEvent(mouseEvent);
 }
