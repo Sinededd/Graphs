@@ -3,6 +3,7 @@
 #include "expressionitem.h"
 #include "Math/mathexpression.h"
 #include <QRandomGenerator>
+#include <QTimer>
 #include <QTime>
 #include <QGraphicsView>
 // #include <QRectF>
@@ -12,10 +13,12 @@ PaintingScene::PaintingScene(QObject *parent)
 {
     // SceneItem *item = new SceneItem();
     // item->updateDraw();
-    group_ = this->createItemGroup(this->selectedItems());
-    gridItem = new GridItem(10);
-    addItem(gridItem);
+
+    connect(this, &QGraphicsScene::sceneRectChanged, this, &PaintingScene::initGrid);
+    // QTimer::singleShot(2000, this, &PaintingScene::initGrid);
+    // initGrid();
     // group_->setFlag(QGraphicsItem::ItemIsMovable);
+
 }
 
 MathExpression *PaintingScene::AddExpression(QString exp)
@@ -54,24 +57,53 @@ SceneItem* PaintingScene::addItemInCenter(SceneItem *item)
     {
         dynamic_cast<SceneItem*>(item)->updateDraw();
     }
+    addItem(item);
     dynamic_cast<SceneItem*>(item)->updateDraw();
     // this->addItem(item);
     group_->addToGroup(item);
     return item;
 }
 
+void PaintingScene::updateItemsDraw()
+{
+    QList<QGraphicsItem*> items = group_->childItems();
+    for(QGraphicsItem* item : std::as_const(items))
+    {
+        dynamic_cast<SceneItem*>(item)->updateDraw();
+    }
+    update();
+}
+
 void PaintingScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
-    group_->moveBy(mouseEvent->scenePos().x() - mouseEvent->lastScenePos().x(), mouseEvent->scenePos().y() - mouseEvent->lastScenePos().y());
-    if(qAbs(group_->pos().x()) > sceneRect().width() * offsetSize_ || qAbs(group_->pos().y()) > sceneRect().height() * offsetSize_)
-    {
-        // qInfo() << group_->pos();
-        group_->setPos(0, 0);
-        QList<QGraphicsItem*> items = group_->childItems();
-        for(QGraphicsItem* item : std::as_const(items))
-        {
-            dynamic_cast<SceneItem*>(item)->updateDraw();
-        }
-    }
+    // qInfo() << group_->childItems().size();
+    // group_->moveBy(mouseEvent->scenePos().x() - mouseEvent->lastScenePos().x(), mouseEvent->scenePos().y() - mouseEvent->lastScenePos().y());
+    // if(qAbs(group_->pos().x()) > sceneRect().width() * offsetSize_ || qAbs(group_->pos().y()) > sceneRect().height() * offsetSize_)
+    // {
+
+    //     group_->setPos(0, 0);
+    //     QList<QGraphicsItem*> items = group_->childItems();
+    //     for(QGraphicsItem* item : std::as_const(items))
+    //     {
+    //         dynamic_cast<SceneItem*>(item)->updateDraw();
+    //     }
+    // }
     QGraphicsScene::mouseMoveEvent(mouseEvent);
+}
+
+void PaintingScene::initGrid()
+{
+    group_ = this->createItemGroup(selectedItems());
+    // SceneItem* test = new SceneItem();
+    // addItem(test);
+    // group_->addToGroup();
+    qInfo() << "::::::::::::::" << this->sceneRect().size();
+    gridItem = new GridItem(10);
+    addItemInCenter(gridItem);
+    // SceneItem *test = new SceneItem();
+    ExpressionItem *test = new ExpressionItem(new MathExpression("x*x"), gridItem);
+    addItemInCenter(test);
+    // group_ = this->createItemGroup(sceneItems);
+
+    // disconnect(this, &QGraphicsScene::sceneRectChanged, this, &PaintingScene::initGrid);
 }

@@ -4,57 +4,23 @@ ExpressionItem::ExpressionItem(MathExpression *exp, GridItem *parent,
                                QColor color)
     : SceneItem{parent}, exp(exp) {
     grid = parent;
-    this->color = color;
+    QPen pen(color);
+    pen.setWidth(2);
+    setPen(pen);
     paintPath = new QPainterPath();
     renderPos = QPointF(INFINITY, INFINITY);
-    setFlag(ItemIsMovable, true);
+    // setFlag(ItemIsMovable, true);
 }
 
 void ExpressionItem::draw(QPainterPath *path)
 {
-    qInfo() << "podzalupa";
-    // if(exp->isImplicit())
-    // {
-    //     implicitFunction(path);
-    // }
-    // else
-    // {
-    //     explicitFunction(path);
-
-    // }
-    // grid->setCurrentDraw();
-    qreal step = 0.1; // Шаг в радианах для плавности
-    QRectF rect = offsetRect();
-    qreal gridSize = grid->GridSize();
-    qreal xMin = rect.left();
-    qreal xMax = rect.right();
-    // Начальная точка
-    qreal x = rect.left();
-    qreal y = std::tan(x);
-    QPointF previousPoint(x * gridSize, -y * gridSize); // Отрицательный y, т.к. ось Y в графике направлена вниз
-    path->moveTo(previousPoint);
-
-    // Итерация по x
-    for (qreal i = xMin + step; i <= xMax; i += step) {
-        x = i;
-        // Проверяем, близко ли мы к асимптоте
-        qreal modX = std::fmod(x, M_PI);
-        if (std::abs(modX - M_PI / 2) < 0.05 || std::abs(modX + M_PI / 2) < 0.05) {
-            // Пропускаем точки около асимптот
-            path->moveTo(QPointF(x * gridSize, -y * gridSize));
-            continue;
-        }
-
-        y = std::tan(x);
-        // Ограничиваем y, чтобы избежать экстремальных значений
-        if (std::abs(y) > 100) {
-            path->moveTo(QPointF(x * gridSize, -y * gridSize));
-            continue;
-        }
-
-        QPointF newPoint(x * gridSize, -y * gridSize);
-        path->lineTo(newPoint);
-        previousPoint = newPoint;
+    if(exp->isImplicit())
+    {
+        implicitFunction(path);
+    }
+    else
+    {
+        explicitFunction(path);
     }
 }
 

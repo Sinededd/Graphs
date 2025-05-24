@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     // setMinimumSize(700, 480);
-    setMinimumSize(250, 250);
+    setMinimumSize(600, 400);
     paintArea = new PaintingArea(QRect(0, 0, this->minimumWidth(), this->minimumHeight()), this);
     setCentralWidget(paintArea);
 

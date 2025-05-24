@@ -5,7 +5,7 @@
 #include "expressionitem.h"
 #include "griditem.h"
 
-
+#include <QGraphicsItem>
 #include <QObject>
 #include <QGraphicsScene>
 #include <QRectF>
@@ -22,17 +22,22 @@ public:
     MathExpression *AddExpression(MathExpression *exp);
     SceneItem* addItemInCenter(SceneItem *item);
 
-    double offsetSize() { return offsetSize_; }
-    void updateOffsetPos() { offsetPos_ = mouseGrabberItem()->scenePos(); }
+    void updateOffsetPos() { PaintingScene::offsetPos_ = mouseGrabberItem()->scenePos();}
+
+    void updateItemsDraw();
 
 
 protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 
+private slots:
+    void initGrid();
+
 private:
-    double offsetSize_ = 0.5;
     QGraphicsItemGroup *group_;
-    QPointF offsetPos_ = QPointF(0, 0);
+    QList<QGraphicsItem*> sceneItems;
+    static QPointF offsetPos_;
+    constexpr static double offsetSize_ = 0.5;
 
     GridItem *gridItem;
 };

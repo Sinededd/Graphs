@@ -17,6 +17,7 @@ void PaintingArea::resizeEvent(QResizeEvent *event)
 {
     view->setGeometry(0, 0, event->size().width(), event->size().height());
     scene->setSceneRect(view->viewport()->geometry());
+    scene->updateItemsDraw();
     QWidget::resizeEvent(event);
 }
 

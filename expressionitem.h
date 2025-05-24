@@ -21,7 +21,6 @@ protected:
 private:
     MathExpression *exp;
     GridItem *grid;
-    QColor color;
 
     qreal renderK = 2;
     QPointF renderPos;

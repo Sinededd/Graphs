@@ -1,11 +1,10 @@
 #include "sceneitem.h"
 #include <QGraphicsScene>
-#include "paintingscene.h"
 
 SceneItem::SceneItem(QGraphicsItem *parent) : QGraphicsItem(parent), state(0)
 {
     path = new QPainterPath();
-    this->setFlag(ItemIsMovable);
+    // this->setFlag(ItemIsMovable);
 }
 
 SceneItem::~SceneItem()
@@ -24,12 +23,17 @@ void SceneItem::updateDraw()
 
 double SceneItem::offsetSize()
 {
-    return dynamic_cast<PaintingScene*>(scene())->offsetSize();
+    return offsetSize_;
 }
 
 QRectF SceneItem::offsetRect()
 {
-    double k = dynamic_cast<PaintingScene*>(scene())->offsetSize();
+    qInfo() << scene();
+    if(scene() == nullptr)
+    {
+        return  QRectF(-125, -125, 250, 250);
+    }
+    double k = offsetSize_;
     return QRectF(-scene()->sceneRect().width() * (k + 0.5), -scene()->sceneRect().height() * (k + 0.5), scene()->sceneRect().width() * (k * 2 + 1), scene()->sceneRect().height() * (k * 2 + 1));
 }
 
@@ -44,14 +48,14 @@ void SceneItem::draw(QPainterPath *path)
 
 QRectF SceneItem::boundingRect() const
 {
-    double k = dynamic_cast<PaintingScene*>(scene())->offsetSize();
+    double k = offsetSize_;
     return QRectF(-scene()->sceneRect().width() * k, -scene()->sceneRect().height() * k, scene()->sceneRect().width() * (k * 2 + 1), scene()->sceneRect().height() * (k * 2 + 1));
 }
 
 void SceneItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     painter->drawRect(boundingRect());
-    painter->setPen(Qt::black);
+    painter->setPen(pen_);
     painter->setBrush(Qt::transparent);
     painter->translate(boundingRect().center());
     painter->scale(1, -1);
