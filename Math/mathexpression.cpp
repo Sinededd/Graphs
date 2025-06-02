@@ -1,10 +1,12 @@
 #include "mathexpression.h"
 #include "mathformconverter.h"
+#include "Math/mathparser.h"
 
 MathExpression::MathExpression(QString exp) {
+    MathChecker::resetError();
     inital = exp;
-    postfixTok = MathFormConverter::InfixToPostfix(MathParser::CreateTokenList(exp));
-    qInfo() << MathChecker::GetLastError();
+    postfixTok = MathFormConverter::InfixToPostfix(MathParser::CreateTokenList(exp, funcType));
+    MathChecker::CheckPostfixSyntax(postfixTok);
     if(MathChecker::GetLastError() != MathChecker::None)
     {
         isValidExp = 0;
@@ -19,7 +21,7 @@ MathExpression::MathExpression(QString exp) {
 
 qreal MathExpression::Calculate(const qreal &x, const qreal &y)
 {
-    if(isImplicit() && y == INFINITY)
+    if(getFuncType() == 0 && y == INFINITY)
     {
         throw std::invalid_argument("not enough parameters for calculation implicit function");
     }
@@ -96,7 +98,12 @@ qreal MathExpression::Calculate(const qreal &x, const qreal &y)
     return operandStack.top();
 }
 
-bool MathExpression::isImplicit()
+int MathExpression::getFuncType()
 {
-    return postfixTok.contains("y");
+    return funcType;
+}
+
+QString MathExpression::getString()
+{
+    return inital;
 }

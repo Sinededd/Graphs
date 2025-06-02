@@ -1,10 +1,12 @@
 #include "sceneitem.h"
+#include "sceneitemcontroller.h"
 #include <QGraphicsScene>
 
-SceneItem::SceneItem(QGraphicsItem *parent) : QGraphicsItem(parent), state(0)
+
+SceneItem::SceneItem(QGraphicsItem *parent) : QGraphicsItem(parent)
 {
     path = new QPainterPath();
-    // this->setFlag(ItemIsMovable);
+    controller = new SceneItemController(this);
 }
 
 SceneItem::~SceneItem()
@@ -14,48 +16,42 @@ SceneItem::~SceneItem()
 
 void SceneItem::updateDraw()
 {
-    qInfo() << "updateDraw";
-    state = (state + 1) % 2;
-    path->clear();
-    draw(path);
-    update();
+    if(controller == nullptr)
+        return;
+    controller->updateDraw();
 }
 
-double SceneItem::offsetSize()
+QRectF SceneItem::getRect()
 {
-    return offsetSize_;
-}
-
-QRectF SceneItem::offsetRect()
-{
-    qInfo() << scene();
-    if(scene() == nullptr)
-    {
-        return  QRectF(-125, -125, 250, 250);
-    }
-    double k = offsetSize_;
-    return QRectF(-scene()->sceneRect().width() * (k + 0.5), -scene()->sceneRect().height() * (k + 0.5), scene()->sceneRect().width() * (k * 2 + 1), scene()->sceneRect().height() * (k * 2 + 1));
+    QRectF rect = boundingRect();
+    rect.moveTo(-boundingRect().width() / 2, -boundingRect().height() / 2);
+    return rect;
 }
 
 void SceneItem::draw(QPainterPath *path)
+{}
+
+void SceneItem::setPath(const QPainterPath &newPath)
 {
-    if (state == 0) {
-        path->addRect(-4, -4, 8, 8);
-    } else {
-        path->addEllipse(-4, -4, 8, 8);
-    }
+    *path = newPath;
+    update();
+}
+
+void SceneItem::remove()
+{
+    delete controller;
+    controller = nullptr;
+    scene()->removeItem(this);
 }
 
 QRectF SceneItem::boundingRect() const
 {
-    double k = offsetSize_;
-    return QRectF(-scene()->sceneRect().width() * k, -scene()->sceneRect().height() * k, scene()->sceneRect().width() * (k * 2 + 1), scene()->sceneRect().height() * (k * 2 + 1));
+    return QRectF(0, 0, scene()->sceneRect().width(), scene()->sceneRect().height());
 }
 
 void SceneItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    painter->drawRect(boundingRect());
-    painter->setPen(pen_);
+    painter->setPen(pen);
     painter->setBrush(Qt::transparent);
     painter->translate(boundingRect().center());
     painter->scale(1, -1);

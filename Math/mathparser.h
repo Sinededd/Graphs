@@ -7,11 +7,11 @@
 class MathParser
 {
 public:
-    static QStringList CreateTokenList(QString exp);
+    static QStringList CreateTokenList(QString exp, int &funcType);
 
 private:
     MathParser() {}
-    static inline QRegularExpression re = QRegularExpression("(\\d+\\.?\\d*|[-+*\\/()^]|sin|cos|tg|ctg|\\w)");
+    static inline QRegularExpression re = QRegularExpression("(\\d+\\.?\\d*|[-+*\\/()^]|sin|cos|tg|ctg|\\w|=)");
 };
 
 #endif // MATHPARSER_H

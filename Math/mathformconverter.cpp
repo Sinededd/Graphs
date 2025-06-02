@@ -35,9 +35,14 @@ QStringList MathFormConverter::InfixToPostfix(QStringList tokens)
             }
             else if(tokens[i][0] == ')')
             {
-                while(operators.top() != "(")
+                while(operators.size() != 0 && operators.top() != "(")
                 {
                     out << operators.pop();
+                }
+                if(operators.size() == 0)
+                {
+                    MathChecker::ThrowError(MathChecker::Invalid_Brackets);
+                    return QStringList();
                 }
                 operators.pop();
             }
@@ -62,7 +67,6 @@ QStringList MathFormConverter::InfixToPostfix(QStringList tokens)
     {
         out << operators.pop();
     }
-    qInfo() << out;
     return out;
 }
 

@@ -5,80 +5,72 @@
 
 
 GridItem::GridItem(int gridSize, QGraphicsItem *parent) :
-    SceneItem{parent}, gridSize(gridSize)
+    QGraphicsItem{parent}, gridSize(gridSize)
 {
-    GridArrows *arrows = new GridArrows();
-    qInfo() << "penis: " << scene();
-
-}
-
-void GridItem::setGridSize(int gridS)
-{
-    gridSize = gridS;
-    update();
+    setZValue(-100);
 }
 
 void GridItem::addGridSize(int dgridS)
 {
+    if(gridSize <= 30)
+    {
+        gridSize *= 2;
+        division *= 2;
+    }
+    if(gridSize >= 80)
+    {
+        gridSize /= 2;
+        division /= 2;
+    }
     gridSize += dgridS;
     update();
 }
 
-void GridItem::setSize(QSizeF size)
+QRectF GridItem::boundingRect() const
 {
-    this->size = size;
-    update();
+    return QRectF(0, 0, scene()->sceneRect().width(), scene()->sceneRect().height());
 }
 
-void GridItem::setPos(QPointF pos)
+void GridItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    this->pos = pos;
-    update();
-}
+    // painter->setBrush(QBrush("red"));
+    QRectF rect = boundingRect();
+    painter->drawRect(rect);
+    // painter->translate(rect.center());
+    // rect.moveTo(pos);
+        // Рисуем сетку
+    QPen gridPen(QColor(200, 200, 200), 1, Qt::DashLine);
+    QPen defPen(Qt::black, 2);
+    for (int y = rect.center().y() + gridSize; y <= rect.bottom(); y += gridSize) { // сетка горизонт -
+        painter->setPen(gridPen);
+        painter->drawLine(rect.left(), y, rect.right(), y);
+        painter->setPen(defPen);
+        painter->drawText(rect.center().x() + 2, y + 7, QString::number(qFloor((-(y - rect.center().y())) / gridSize) * division));
 
-void GridItem::draw(QPainterPath *path)
-{
-    qInfo() << "AAA:  " << scene();
-    QRectF rect = offsetRect();
-        // // Рисуем сетку
-        // QPen gridPen(QColor(200, 200, 200), 1, Qt::DashLine);
-        // QPen defPen(Qt::black, 2);
-        // for (int y = gridSize + pos.y(); y <= size.height() / 2; y += gridSize) { // сетка горизонт -
-        //     painter->setPen(gridPen);
-        //     painter->drawLine(-size.width() / 2, y, size.width() / 2, y);
-        //     painter->setPen(defPen);
-        //     painter->drawText(5 + pos.x(), y + 5, "-" + QString::number((y - pos.y()) / gridSize));
+    }
+    for (int y = rect.center().y() - gridSize; y >= rect.top(); y -= gridSize) { // сетка горизонт +
+        painter->setPen(gridPen);
+        painter->drawLine(rect.left(), y, rect.right(), y);
+        painter->setPen(defPen);
+        painter->drawText(rect.center().x() + 2, y + 7, QString::number(qFloor(-(y - rect.center().y())) / gridSize * division));
+    }
+    ////
+    for (int x = rect.center().x() + gridSize; x <= rect.right(); x += gridSize) {
+        painter->setPen(gridPen);
+        painter->drawLine(x, rect.top(), x, rect.bottom());
+        painter->setPen(defPen);
+        painter->drawText(x - 5, rect.center().y() - 3, QString::number(qCeil(x - rect.center().x()) / gridSize * division));
 
-    // }
-    // for (int y = -gridSize + pos.y(); y >= -size.height() / 2; y -= gridSize) { // сетка горизонт +
-    //     painter->setPen(gridPen);
-    //     painter->drawLine(-size.width() / 2, y, size.width() / 2, y);
-    //     painter->setPen(defPen);
-    //     painter->drawText(5 + pos.x(), y + 5, QString::number((y - pos.y()) / gridSize));
-    // }
-    // for (int x = gridSize + pos.x(); x <= size.width() / 2; x += gridSize) {
-    //     painter->setPen(gridPen);
-    //     painter->drawLine(x, -size.height() / 2, x, size.height() / 2);
-    //     painter->setPen(defPen);
-    //     painter->drawText(x - 5, -3 + pos.y(), QString::number((x - pos.x()) / gridSize));
+    }
+    for (int x = rect.center().x() - gridSize; x >= rect.left(); x -= gridSize) {
+        painter->setPen(gridPen);
+        painter->drawLine(x, rect.top(), x, rect.bottom());
+        painter->setPen(defPen);
+        painter->drawText(x - 5, rect.center().y() - 3, QString::number(qFloor(x - rect.center().x()) / gridSize * division));
+    }
+    QPen axisPen(Qt::black, 2);
+    painter->setPen(axisPen);
 
-    // }
-    // for (int x = -gridSize + pos.x(); x >= -size.width() / 2; x -= gridSize) {
-    //     painter->setPen(gridPen);
-    //     painter->drawLine(x, -size.height() / 2, x, size.height() / 2);
-    //     painter->setPen(defPen);
-    //     painter->drawText(x - 5, -3 + pos.y(), "-" + QString::number((x - pos.x()) / gridSize));
-    // }
-    // // Рисуем оси
-    // QPen axisPen(Qt::black, 2);
-    // path->addRect(0, 0, 100, 100);
-}
-
-void GridArrows::draw(QPainterPath *path)
-{
-    QRectF rect = offsetRect();
-    path->moveTo(-rect.width() / 2, 0);
-    path->lineTo(rect.width() / 2, 0);
-    path->moveTo(0, -rect.height() / 2);
-    path->lineTo(0, rect.height() / 2);
+    painter->drawLine(rect.left(), rect.center().y(), rect.right(), rect.center().y());
+    painter->drawLine(rect.center().x(), rect.top(), rect.center().x(), rect.bottom());
 }

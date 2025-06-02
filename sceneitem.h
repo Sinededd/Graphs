@@ -5,28 +5,32 @@
 #include <QGraphicsItem>
 #include <QPainterPath>
 #include <QPainter>
+#include <QThread>
+
+class SceneItemController;
 
 class SceneItem : public QGraphicsItem
 {
 public:
     SceneItem(QGraphicsItem *parent = nullptr);
-    ~SceneItem();
+    virtual ~SceneItem();
     void updateDraw();
-    double offsetSize();
-    QRectF offsetRect();
-    QPen pen() { return pen_; }
-    void setPen(QPen pen) {pen_ = pen; }
+    QPen getPen() { return pen; }
+    void setPen(QPen pen) {this->pen = pen; }
+    QRectF getRect();
+
+    virtual void draw(QPainterPath *path);
+    void setPath(const QPainterPath &newPath);
+    void remove();
 
 protected:
-    virtual void draw(QPainterPath *path);
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) override;
 
 private:
-    double offsetSize_ = 0.5;
+    SceneItemController *controller;
     QPainterPath *path;
-    int state;
-    QPen pen_;
+    QPen pen;
 };
 
 #endif // SCENEITEM_H

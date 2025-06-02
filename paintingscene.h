@@ -18,24 +18,26 @@ class PaintingScene : public QGraphicsScene
     Q_OBJECT
 public:
     explicit PaintingScene(QObject *parent = nullptr);
-    MathExpression *AddExpression(QString exp);
-    MathExpression *AddExpression(MathExpression *exp);
-    SceneItem* addItemInCenter(SceneItem *item);
 
-    void updateOffsetPos() { PaintingScene::offsetPos_ = mouseGrabberItem()->scenePos();}
+    //Expression
+    MathExpression *addExp(QString exp);
+    void deleteExp(int i);
 
+    //Grid
+    GridItem* getGrid() {return gridItem; }
+    QList<ExpressionItem*> getExps() {return exps; }
+
+    // service
     void updateItemsDraw();
-
-
-protected:
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 
 private slots:
     void initGrid();
 
 private:
+    SceneItem* addItemInCenter(SceneItem *item);
+
     QGraphicsItemGroup *group_;
-    QList<QGraphicsItem*> sceneItems;
+    QList<ExpressionItem*> exps;
     static QPointF offsetPos_;
     constexpr static double offsetSize_ = 0.5;
 

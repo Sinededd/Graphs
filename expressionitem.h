@@ -14,6 +14,9 @@ class ExpressionItem : public SceneItem
 {
 public:
     ExpressionItem(MathExpression *exp, GridItem *parent, QColor color = QColor("red"));
+    ~ExpressionItem() override {delete exp; }
+    void setExp(MathExpression *exp);
+    MathExpression* getExp();
 
 protected:
     void draw(QPainterPath *path) override;
@@ -21,13 +24,10 @@ protected:
 private:
     MathExpression *exp;
     GridItem *grid;
-
-    qreal renderK = 2;
-    QPointF renderPos;
-
     QPainterPath *paintPath;
 
-    void explicitFunction(QPainterPath *path);
+    void explicitByXFunction(QPainterPath *path);
+    void explicitByYFunction(QPainterPath *path);
     void implicitFunction(QPainterPath *path);
 };
 

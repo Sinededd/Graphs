@@ -13,25 +13,31 @@ SOURCES += \
     Math/mathexpression.cpp \
     Math/mathformconverter.cpp \
     Math/mathparser.cpp \
+    drawworker.cpp \
+    explineedit.cpp \
     expressionitem.cpp \
     griditem.cpp \
     main.cpp \
     mainwindow.cpp \
     paintingarea.cpp \
     paintingscene.cpp \
-    sceneitem.cpp
+    sceneitem.cpp \
+    sceneitemcontroller.cpp
 
 HEADERS += \
     Math/mathchecker.h \
     Math/mathexpression.h \
     Math/mathformconverter.h \
     Math/mathparser.h \
+    drawworker.h \
+    explineedit.h \
     expressionitem.h \
     griditem.h \
     mainwindow.h \
     paintingarea.h \
     paintingscene.h \
-    sceneitem.h
+    sceneitem.h \
+    sceneitemcontroller.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

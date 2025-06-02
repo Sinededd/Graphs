@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QLineEdit>
+#include <QListWidget>
 #include "paintingarea.h"
 
 class MainWindow : public QMainWindow
@@ -11,9 +13,17 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void addGraph();
+
+public slots:
+    void changeGraph(QListWidgetItem *item);
+    void changeGraphFinish(QListWidgetItem *item, QLineEdit *editExp);
+    void setSelectionExp();
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     PaintingArea *paintArea;
+    QListWidget *functionList;
 };
 #endif // MAINWINDOW_H

@@ -8,24 +8,40 @@ ExpressionItem::ExpressionItem(MathExpression *exp, GridItem *parent,
     pen.setWidth(2);
     setPen(pen);
     paintPath = new QPainterPath();
-    renderPos = QPointF(INFINITY, INFINITY);
     // setFlag(ItemIsMovable, true);
+}
+
+void ExpressionItem::setExp(MathExpression *exp)
+{
+    delete this->exp;
+    this->exp = exp;
+}
+
+MathExpression *ExpressionItem::getExp()
+{
+    return exp;
 }
 
 void ExpressionItem::draw(QPainterPath *path)
 {
-    if(exp->isImplicit())
+    if(!exp->isValid()) return;
+
+    if(exp->getFuncType() == 0)
     {
         implicitFunction(path);
     }
+    else if(exp->getFuncType() == 1)
+    {
+        explicitByXFunction(path);
+    }
     else
     {
-        explicitFunction(path);
+        explicitByYFunction(path);
     }
 }
 
-void ExpressionItem::explicitFunction(QPainterPath *path) {
-    QRectF rect = offsetRect();
+void ExpressionItem::explicitByXFunction(QPainterPath *path) {
+    QRectF rect = getRect();
     int i = rect.left();
     QPointF previousPoint = QPointF(
         i,
@@ -35,6 +51,10 @@ void ExpressionItem::explicitFunction(QPainterPath *path) {
         QPointF newPoint = QPointF(
             i,
             exp->Calculate((qreal)i / (qreal)grid->GridSize()) * grid->GridSize());
+        if(!rect.contains(newPoint))
+        {
+            path->moveTo(newPoint);
+        }
         if(qAbs(previousPoint.y() - newPoint.y()) > rect.height())
         {
             path->moveTo(newPoint);
@@ -48,11 +68,41 @@ void ExpressionItem::explicitFunction(QPainterPath *path) {
     }
 }
 
+void ExpressionItem::explicitByYFunction(QPainterPath *path)
+{
+    QRectF rect = getRect();
+    int i = rect.top();
+    QPointF previousPoint = QPointF(
+        exp->Calculate((qreal)i / (qreal)grid->GridSize()) * grid->GridSize(),
+        i);
+    path->moveTo(previousPoint);
+    for (i = i + 1; i < rect.bottom(); i++) {
+        QPointF newPoint = QPointF(
+            exp->Calculate((qreal)i / (qreal)grid->GridSize()) * grid->GridSize(),
+            i);
+        if(!rect.contains(newPoint))
+        {
+            path->moveTo(newPoint);
+        }
+        if(qAbs(previousPoint.x() - newPoint.x()) > rect.width())
+        {
+            path->moveTo(newPoint);
+        }
+        else
+        {
+            path->lineTo(newPoint);
+        }
+
+        previousPoint = newPoint;
+    }
+}
+
 void ExpressionItem::implicitFunction(QPainterPath *path) {
-    QSizeF size = grid->Size() * renderK;
+    QRectF rect = getRect();
+    QSizeF size = rect.size();
     qreal gridSize = grid->GridSize();
-    qreal posX = grid->Pos().x();
-    qreal posY = grid->Pos().y();
+    qreal posX = 0;
+    qreal posY = 0;
     qreal step = 5;
 
 
@@ -65,7 +115,7 @@ void ExpressionItem::implicitFunction(QPainterPath *path) {
         qreal y = (-size.height() / 2 + posY + j * step) / gridSize;
         for (int i = 0; i < gridWidth; ++i) {
             qreal x = (-size.width() / 2 - posX + i * step) / gridSize;
-            functionValues[j][i] = exp->Calculate(x, y);
+            functionValues[j][i] = exp->Calculate(x, -y);
         }
     }
 
@@ -100,7 +150,6 @@ void ExpressionItem::implicitFunction(QPainterPath *path) {
                 path->moveTo(points[0]);
                 for (int k = 1; k < points.size(); ++k) {
                     path->lineTo(points[k]);
-                    // painter->drawLine(points[k - 1], points[k]);
                 }
             }
         }
